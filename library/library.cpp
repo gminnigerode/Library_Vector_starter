@@ -16,7 +16,6 @@ using namespace std;
 vector<book> books;
 vector<patron> patrons;
 
-
 /*
  * clear books and patrons containers
  * then reload them from disk 
@@ -49,16 +48,23 @@ void reloadAllData(){
 int checkout(int bookid, int patronid){
 	reloadAllData();
 	int booksOut = howmanybooksdoesPatronHaveCheckedOut(patronid);
+	cout << "Patron ID: " + to_string(patronid) + "\n booksOut:"+ to_string(booksOut) + "\n";
 	if(booksOut == PATRON_NOT_ENROLLED){
 		return PATRON_NOT_ENROLLED;
 	}
 	if(booksOut == MAX_BOOKS_ALLOWED_OUT){
 		return TOO_MANY_OUT;
 	}
-	for(book b : books){
-		if(b.book_id==bookid){
-			b.loaned_to_patron_id = patronid;
-			b.state = book_checkout_state::OUT;
+	for(int i = 0; i < patrons.size(); i++){
+		if(patrons[i].patron_id==patronid){
+			patrons[i].number_books_checked_out += 1;
+			cout << "IT SHOULD HAVE ITERATED, BooksOut = " + to_string(patrons[i].number_books_checked_out);
+		}
+	}
+	for(int i = 0; i < books.size(); i++){
+		if(books[i].book_id==bookid){
+			books[i].loaned_to_patron_id = patronid;
+			books[i].state = book_checkout_state::OUT;
 			saveBooks(books,BOOKFILE.c_str());
 			savePatrons(patrons,PATRONFILE.c_str());
 			return SUCCESS;
@@ -81,13 +87,15 @@ int checkout(int bookid, int patronid){
  */
 int checkin(int bookid){
 	reloadAllData();
-	for(book b : books){
-		if(b.book_id==bookid){
-			for(patron p:patrons){
-				if(b.loaned_to_patron_id == p.patron_id){
-					p.number_books_checked_out--;
-					b.loaned_to_patron_id=NO_ONE;
-					b.state=book_checkout_state::IN;
+	for(int i = 0; i<books.size(); i++){
+		if(books[i].book_id==bookid){
+			for(int i = 0; i<patrons.size(); i++){
+				if(books[i].loaned_to_patron_id == patrons[i].patron_id){
+					patrons[i].number_books_checked_out--;
+					books[i].loaned_to_patron_id=NO_ONE;
+					books[i].state=book_checkout_state::IN;
+					saveBooks(books,BOOKFILE.c_str());
+					savePatrons(patrons,PATRONFILE.c_str());
 					return SUCCESS;
 				}
 			}
@@ -141,9 +149,9 @@ int numbPatrons(){
  */
 int howmanybooksdoesPatronHaveCheckedOut(int patronid){
 	reloadAllData();
-	for(patron p : patrons){
-		if(p.patron_id == patronid){
-			return p.number_books_checked_out;
+	for(int i = 0; i<patrons.size(); i++){
+		if(patrons[i].patron_id == patronid){
+			return patrons[i].number_books_checked_out;
 		}
 	}
 	return PATRON_NOT_ENROLLED;
