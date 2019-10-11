@@ -25,7 +25,7 @@ int loadBooks(std::vector<book> &books, const char* filename)
 			while(getline(ss,tempStr,',')){
 				if(tempStr.size() == 0){
 						break;
-					}
+				}
 				stringstream sToInt(tempStr);
 				switch(count){
 				case 0:
@@ -62,7 +62,9 @@ int loadBooks(std::vector<book> &books, const char* filename)
 					break;
 				}
 			}
-			books.push_back(tempBook);
+			if(tempBook.book_id!=UNINITIALIZED){
+				books.push_back(tempBook);
+			}
 	}
 	if(books.size()==0){
 		return NO_BOOKS_IN_LIBRARY;
@@ -146,7 +148,9 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename)
 					break;
 				}
 			}
-			patrons.push_back(tempPatron);
+			if(tempPatron.patron_id!=UNINITIALIZED){
+				patrons.push_back(tempPatron);
+			}
 	}
 	if(patrons.size() == 0){
 		return NO_PATRONS_IN_LIBRARY;
